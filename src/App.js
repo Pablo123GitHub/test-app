@@ -30,6 +30,7 @@ const optionsIgnore = {
 
 function App() {
   const [dataTable, setDataTable] = useState([]);
+  const [labelsInfo, setLabelsInfo] = useState([]);
 
   const currency = {
     "e518736c-49d7-4944-921d-d2ce5924dc5f": "BAL",
@@ -49,7 +50,6 @@ function App() {
         },
       })
       .then((response) => {
-        console.log(response.data.data);
         setDataTable(
           response.data.data.map((row) => {
             return {
@@ -57,7 +57,7 @@ function App() {
               incoming: row.direction,
               asset: currency[row.asset],
               volume: row.volume,
-              label: row.label,
+              label: row?.labels,
             };
           })
         );
@@ -65,11 +65,12 @@ function App() {
       .catch((error) => console.error("error:" + error));
   }, []);
 
-  function setLabels(options) {
+  function setLabels(options, label) {
     axios
       .request(options)
       .then(function (response) {
         console.log(response.data);
+        setLabelsInfo((prev) => [...prev, label]);
       })
       .catch(function (error) {
         console.error(error);
@@ -78,10 +79,10 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={() => setLabels(optionsRevenue)}>
+      <button onClick={() => setLabels(optionsRevenue, "Revenue")}>
         Add Revenue Labels to All
       </button>
-      <button onClick={() => setLabels(optionsIgnore)}>
+      <button onClick={() => setLabels(optionsIgnore, "Ignore")}>
         Add Ignore Labels to All
       </button>
       <table>
@@ -91,6 +92,7 @@ function App() {
             <th>Incoming</th>
             <th>Asset</th>
             <th>Volume</th>
+            <th>Label</th>
           </tr>
         </thead>
         <tbody>
@@ -100,6 +102,7 @@ function App() {
               <td>{row.incoming}</td>
               <td>{row.asset}</td>
               <td>{row.volume}</td>
+              <td>{labelsInfo}</td>
             </tr>
           ))}
         </tbody>
