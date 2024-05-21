@@ -3,6 +3,31 @@ import "./App.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+const options = {
+  method: "POST",
+  url: "use correct url",
+  headers: {
+    "content-type": "application/json",
+    "cryptio-api-key": process.env.REACT_APP_CRYPTIO_API_KEY,
+  },
+  data: {
+    transaction_hashes: [
+      "0xfdf027f88de3290e8493086abdf24b2b1316c3159be2b5ef06109784c81cbbc7",
+    ],
+    movements: ["626c2c57-520a-4552-9661-d0130bf203f8"],
+  },
+};
+
+const optionsRevenue = {
+  ...options,
+  url: "/api/label/1e7c5038-52f6-452b-9d40-cac8e572920a/apply",
+};
+
+const optionsIgnore = {
+  ...options,
+  url: "/api/label/845eb3d0-2f73-4848-93fe-2f90efbc4d43/apply",
+};
+
 function App() {
   const [dataTable, setDataTable] = useState([]);
 
@@ -32,6 +57,7 @@ function App() {
               incoming: row.direction,
               asset: currency[row.asset],
               volume: row.volume,
+              label: row.label,
             };
           })
         );
@@ -39,8 +65,25 @@ function App() {
       .catch((error) => console.error("error:" + error));
   }, []);
 
+  function setLabels(options) {
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }
+
   return (
     <div className="App">
+      <button onClick={() => setLabels(optionsRevenue)}>
+        Add Revenue Labels to All
+      </button>
+      <button onClick={() => setLabels(optionsIgnore)}>
+        Add Ignore Labels to All
+      </button>
       <table>
         <thead>
           <tr>
